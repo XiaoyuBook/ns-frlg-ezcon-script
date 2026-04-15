@@ -1,0 +1,11 @@
+FUNC PreciseWait
+    $f_start = TIME()
+    FOR
+        $f_now = TIME()
+        $f_diff = $f_now - $f_start
+        IF $f_diff >= $delay_ms
+            BREAK
+        ENDIF
+    NEXT
+    $error = $f_diff - $delay_ms
+ENDFUNC

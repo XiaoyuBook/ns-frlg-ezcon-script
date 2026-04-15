@@ -1,24 +1,94 @@
-﻿IMPORT "flow.ecs"
+IMPORT "flow.ecs"
 IMPORT "id.ecs"
 IMPORT "name.ecs"
-IMPORT "rng.ecs"
-# ====================== 可调参数 ======================
-$KeyDelay = 50
-# 用于取名输入时的按键间隔
-# ============================================================
-# 于用户选择界面启动
-# 1. 核心参数设置区
-# ------------------------------------------------------------
-# 调整公式（存档状态）：1ms ≈ 0.05 帧 | 调整值 = 偏差帧数 / 0.05
-# 调整公式（普通状态）：1ms ≈ 0.12 帧 | 调整值 = 偏差帧数 / 0.12
-# ------------------------------------------------------------
-_SEED_TIME = 30587# 第一段：启动 -> 命中 Seed 的时间 (ms)
-_PARITY_TIME = 1500# 第二段：存档界面停留时间 (修正奇偶性)
-_F1 = 15000
-_F2 = 45000
-_F3 = 20000# 第三段核心：进入游戏后到目标帧的等待时间 (ms)
+IMPORT "timing.ecs"
 
-_TARGET_TID = 1234
+$U_A = 183
+$U_B = 173
+$U_C = 163
+$U_D = 153
+$U_E = 143
+$U_F = 133
+$U_G = 182
+$U_H = 172
+$U_I = 162
+$U_J = 152
+$U_K = 142
+$U_L = 132
+$U_M = 181
+$U_N = 171
+$U_O = 161
+$U_P = 151
+$U_Q = 141
+$U_R = 131
+$U_S = 121
+$U_T = 180
+$U_U = 170
+$U_V = 160
+$U_W = 150
+$U_X = 140
+$U_Y = 130
+$U_Z = 120
+
+$L_a = 283
+$L_b = 273
+$L_c = 263
+$L_d = 253
+$L_e = 243
+$L_f = 233
+$L_g = 282
+$L_h = 272
+$L_i = 262
+$L_j = 252
+$L_k = 242
+$L_l = 232
+$L_m = 281
+$L_n = 271
+$L_o = 261
+$L_p = 251
+$L_q = 241
+$L_r = 231
+$L_s = 221
+$L_t = 280
+$L_u = 270
+$L_v = 260
+$L_w = 250
+$L_x = 240
+$L_y = 230
+$L_z = 220
+
+$M_Period = 113
+$M_Comma = 112
+$M_Space = 110
+$N_0 = 363
+$N_1 = 353
+$N_2 = 343
+$N_3 = 333
+$N_4 = 323
+$N_5 = 362
+$N_6 = 352
+$N_7 = 342
+$N_8 = 332
+$N_9 = 322
+$M_Exclamation = 361
+$M_Question = 351
+$M_Male = 341
+$M_Female = 331
+$M_Slash = 321
+$M_Dash = 311
+$M_Ellipsis = 360
+$M_L_Quotation = 350
+$M_R_Quotation = 340
+$M_L_SingleQuotation = 330
+$M_R_SingleQuotation = 320
+
+$RED = 0
+$OXX = 0
+$XOX = 0
+$XXO = 0
+$Name = 0
+
+_TARGET_TID = 15
 # 目标TID
 
 $same_id_switch = 1
@@ -32,9 +102,11 @@ $continue_id_switch = 1
 $65535开关 = 1
 # 65535检测开关：1=开启，0=关闭
 
+$KeyDelay = 50
+# 取名输入时的按键间隔
 
+#-------------------------主角设置------------------------
 
-# ====================== 名字设置 ======================
 # 默认全部为 RED
 # 区分大小写，例如 Ben:
 # $Name1 = $U_B
@@ -48,112 +120,242 @@ $Name4 = $L_x
 $Name5 = $L_e
 $Name6 = $RED
 $Name7 = $RED
+# 具体写法参照 lib/name.ecs 中的字符表
 
+# ====================== 内部运行变量 ======================
+# 以下为脚本内部使用变量，一般无需手动修改
+$CISHU = 0
 
-# ====================== 主流程 ======================
+$curr1 = 0
+$curr2 = 0
+$curr3 = 0
+$curr4 = 0
+$curr5 = 0
 
-CALL 初始化目标TID
+$digits_ok = 0
+$same_condition_match = 0
+$continue_condition_match = 0
+$is_match = 0
 
-# --- 启动与环境清理 ---
-CALL 启动与环境清理
+$t1 = 0
+$t2 = 0
+$t3 = 0
+$t4 = 0
 
+$Stop = 0
 
+$target1 = _TARGET_TID
+$target1 /= 10000
 
-# ==========================================
-# 2. 核心逻辑
-# ==========================================
+$target2 = _TARGET_TID
+$target2 /= 1000
+$target2 %= 10
 
-# --- [第一段：锁定 Seed] ---
-A
-$delay_ms = _SEED_TIME
-CALL PreciseWait
-A DOWN
-WAIT 4000
-A UP
+$target3 = _TARGET_TID
+$target3 /= 100
+$target3 %= 10
 
-# --- [第二段：锁定奇偶性] ---
-WAIT 500
-DOWN
-$delay_ms = _PARITY_TIME
-CALL PreciseWait
+$target4 = _TARGET_TID
+$target4 /= 10
+$target4 %= 10
 
-# 【全脚本唯一的稳定性锚点】
-# 这一刻按下 A，进入游戏，所有后续计时全部锁死在这一秒
-A DOWN
-# 绝对原点
-WAIT 4000
-A UP
-$F1_start = TIME()
-# --- [后续所有动作：基于绝对时间点对齐] ---
+$target5 = _TARGET_TID
+$target5 %= 10
+# ============================================================
+# 于用户选择界面启动
+# 1. 【核心参数设置区】 - 调整公式看这里
+# ------------------------------------------------------------
+# 调整公式（存档状态）：1ms ≈ 0.05 帧 | 调整值 = 偏差帧数 / 0.05
+# 调整公式（普通状态）：1ms ≈ 0.12 帧 | 调整值 = 偏差帧数 / 0.12
+# ------------------------------------------------------------
+$总循环次数 = 10
 
-# 动作序列 A (对应你原来的 F1 段)
-FOR 7
+_SEED_TIME = 35000
+_PARITY_TIME = 1500
+_F1 = 15000
+_F2 = 47500
+_F3 = 21200
+
+# --- 变量初始化 ---
+$F1_start = 0
+$F2_start = 0
+$F3_start = 0
+$f_start = 0
+$f_now = 0
+$f_diff = 0
+$delay_ms = 0
+$error = 0
+$t_elapsed = 0
+$Select_Count = 0
+
+#主程序
+FOR $总循环次数
+    CALL 关闭软件
+    WAIT 3000
     A
-    WAIT 1500
-NEXT
 
-# 对齐 F1 触发点
-FOR
-    $now = TIME()
-    IF ($now - $F1_start) >= _F1
-        BREAK
-    ENDIF
-NEXT
-A DOWN
-WAIT 4000
-A UP
-$F2_start = TIME()
-# 动作序列 B (对应你原来的 F2 段)
-FOR 15
+    $delay_ms = _SEED_TIME
+    CALL PreciseWait
+    A DOWN
+    WAIT 4000
+    A UP
+
+    WAIT 500
+    DOWN
+    $delay_ms = _PARITY_TIME
+    CALL PreciseWait
+
+    A DOWN
+    WAIT 4000
+    A UP
+    $F1_start = TIME()
+
+    WAIT 1500
     A
     WAIT 1000
-NEXT
-# ... 执行取名之前的其他 DOWN 等操作 ...
-WAIT 2000
-DOWN
-WAIT 1000
-A
-# 对齐 F2 触发
-FOR
-    $now = TIME()
-    IF ($now - $F2_start) >= _F2
-        BREAK
-    ENDIF
-NEXT
-A DOWN
-WAIT 4000
-A UP
-$F3_start = TIME()
-# 对齐 F3 (最终 ID 决定点)
-# 之前的取名路径是固定的，耗时已知。
-CALL 取名
+    A
+    WAIT 1000
+    A
+    WAIT 2500
+    A
+    WAIT 1000
+    A
+    WAIT 1000
 
-FOR
-    $now = TIME()
-    IF ($now - $F3_start) >= _F3
-        BREAK
-    ENDIF
-NEXT
-A# 【最终命中】
-3000
-PRINT [最终监控] 总耗时: & $t_elapsed & ms
-
-# --- 后续进入 ID 卡查询 ---
-CALL 进入ID卡查询
-
-
-FOR
-    100#识图轮询间隔
-    IF @IDNo >= 95
-        500#等待ID卡加载
-        CALL 处理ID卡结果
-        IF $LoopControl == 1
-            CONTINUE
-        ENDIF
-        IF $LoopControl == 2
+    FOR
+        $now = TIME()
+        IF ($now - $F1_start) >= _F1
             BREAK
         ENDIF
-        
-    ENDIF
-    
+    NEXT
+    A DOWN
+    WAIT 4000
+    A UP
+    $F2_start = TIME()
+
+    WAIT 1500
+    B
+    WAIT 1000
+    B
+    WAIT 500
+    B
+    WAIT 1000
+    B
+    WAIT 2000
+    B
+    WAIT 1500
+    B
+    WAIT 500
+    B
+    WAIT 1000
+    B
+    WAIT 3000
+    B
+    WAIT 3000
+    DOWN
+    WAIT 1000
+    A
+
+    FOR
+        $now = TIME()
+        IF ($now - $F2_start) >= _F2
+            BREAK
+        ENDIF
+    NEXT
+    A DOWN
+    WAIT 4000
+    A UP
+    $F3_start = TIME()
+
+    CALL 取名
+
+    FOR
+        $now = TIME()
+        IF ($now - $F3_start) >= _F3
+            BREAK
+        ENDIF
+    NEXT
+    A
+    3000
+    PRINT [最终监控] 总耗时: & $t_elapsed & ms
+
+    WAIT 1000
+    A
+    WAIT 2500
+    A
+    WAIT 1000
+    A
+    WAIT 1500
+    DOWN
+    WAIT 500
+    A
+    WAIT 1500
+    A
+    WAIT 1500
+    A
+    WAIT 2500
+    A
+    WAIT 5000
+    A
+    WAIT 5500
+    X
+    WAIT 500
+    DOWN
+    WAIT 500
+    A
+
+    FOR
+        100
+        IF @IDNo >= 95
+            500
+
+            CALL 识图
+
+            IF $digits_ok == 0
+                $CISHU += 1
+                PRINT ⚠️ 第 & $CISHU & 轮 ID识别不完整： & $curr1 & $curr2 & $curr3 & $curr4 & $curr5
+                CONTINUE
+            ENDIF
+
+            CALL 匹配
+
+            IF $same_condition_match == 1
+                $CISHU += 1
+                PRINT ========================
+                PRINT ✅ 豹子TID匹配成功！
+                CALL 打印参数
+                PRINT 📊 累计刷取次数： & $CISHU & 次
+                BREAK
+            ENDIF
+
+            IF $continue_condition_match == 1
+                $CISHU += 1
+                PRINT ========================
+                PRINT ✅ 连号TID匹配成功！
+                CALL 打印参数
+                PRINT 📊 累计刷取次数： & $CISHU & 次
+                BREAK
+            ENDIF
+
+            IF $is_match == 1
+                $CISHU += 1
+                PRINT ========================
+                PRINT ✅ 5位TID全匹配成功！
+                PRINT 🎯 目标ID： & $target1 & $target2 & $target3 & $target4 & $target5
+                CALL 打印参数
+                PRINT 📊 累计刷取次数： & $CISHU & 次
+                BREAK
+            ELSE
+                $CISHU += 1
+                PRINT ========================
+                PRINT 📋 第 & $CISHU & 轮
+                CALL 打印参数
+
+                IF $Stop == 1
+                    BREAK
+                ENDIF
+                BREAK
+            ENDIF
+        ENDIF
+    NEXT
 NEXT
