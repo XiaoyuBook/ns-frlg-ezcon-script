@@ -1,7 +1,7 @@
-﻿IMPORT "common.ecs"
+﻿IMPORT "flow.ecs"
+IMPORT "id.ecs"
 IMPORT "name.ecs"
 IMPORT "rng.ecs"
-
 # ====================== 可调参数 ======================
 $KeyDelay = 50
 # 用于取名输入时的按键间隔
@@ -157,8 +157,3 @@ FOR
     ENDIF
     
 NEXT
-
-
-
-
-

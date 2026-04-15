@@ -1,4 +1,4 @@
-﻿$CISHU = 0
+$CISHU = 0
 
 $curr1 = 0
 $curr2 = 0
@@ -26,16 +26,6 @@ $target3 = 0
 $target4 = 0
 $target5 = 0
 
-$F1_start = 0
-$F2_start = 0
-$F3_start = 0
-$f_start = 0
-$f_now = 0
-$f_diff = 0
-$delay_ms = 0
-$error = 0
-$t_elapsed = 0
-
 FUNC 初始化目标TID
     $seed = _TARGET_TID
     $target1 = _TARGET_TID
@@ -55,18 +45,6 @@ FUNC 初始化目标TID
 
     $target5 = _TARGET_TID
     $target5 %= 10
-ENDFUNC
-
-FUNC PreciseWait
-    $f_start = TIME()
-    FOR
-        $f_now = TIME()
-        $f_diff = $f_now - $f_start
-        IF $f_diff >= $delay_ms
-            BREAK
-        ENDIF
-    NEXT
-    $error = $f_diff - $delay_ms
 ENDFUNC
 
 FUNC 匹配
@@ -407,72 +385,4 @@ FUNC 识图
     IF $curr5 < 0
         $digits_ok = 0
     ENDIF
-    
-ENDFUNC
-
-FUNC 关闭软件
-    FOR
-        IF @防止SWITCH休眠 > 95
-            FOR 3
-                B
-                50
-            NEXT
-        ELSE
-            HOME DOWN
-            100
-            HOME UP
-            1000
-            X
-            WAIT 1000
-            A
-            WAIT 1500
-            A
-            WAIT 1000
-            RIGHT
-            1500
-            A#进入账号
-            1300#这里保持尽量低的延迟
-            BREAK
-        ENDIF
-    NEXT
-ENDFUNC
-
-
-FUNC 进入ID卡查询
-    WAIT 1000
-    A
-    WAIT 2500
-    A
-    WAIT 1000
-    A
-    WAIT 1500
-    DOWN
-    WAIT 500
-    A
-    WAIT 1500
-    A
-    WAIT 1500
-    A
-    WAIT 2500
-    A
-    WAIT 5000
-    A
-    WAIT 5500
-    X
-    WAIT 500
-    DOWN
-    WAIT 500
-    A
-ENDFUNC
-
-
-FUNC 启动与环境清理
-    A
-    WAIT 1500
-    RIGHT
-    WAIT 500
-    A
-    WAIT 1500
-    HOME
-    WAIT 3000
 ENDFUNC
