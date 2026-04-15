@@ -1,0 +1,478 @@
+﻿$CISHU = 0
+
+$curr1 = 0
+$curr2 = 0
+$curr3 = 0
+$curr4 = 0
+$curr5 = 0
+
+$digits_ok = 0
+$same_condition_match = 0
+$continue_condition_match = 0
+$is_match = 0
+$LoopControl = 0
+
+$t1 = 0
+$t2 = 0
+$t3 = 0
+$t4 = 0
+
+$Stop = 0
+
+$seed = 0
+$target1 = 0
+$target2 = 0
+$target3 = 0
+$target4 = 0
+$target5 = 0
+
+$F1_start = 0
+$F2_start = 0
+$F3_start = 0
+$f_start = 0
+$f_now = 0
+$f_diff = 0
+$delay_ms = 0
+$error = 0
+$t_elapsed = 0
+
+FUNC 初始化目标TID
+    $seed = _TARGET_TID
+    $target1 = _TARGET_TID
+    $target1 /= 10000
+
+    $target2 = _TARGET_TID
+    $target2 /= 1000
+    $target2 %= 10
+
+    $target3 = _TARGET_TID
+    $target3 /= 100
+    $target3 %= 10
+
+    $target4 = _TARGET_TID
+    $target4 /= 10
+    $target4 %= 10
+
+    $target5 = _TARGET_TID
+    $target5 %= 10
+ENDFUNC
+
+FUNC PreciseWait
+    $f_start = TIME()
+    FOR
+        $f_now = TIME()
+        $f_diff = $f_now - $f_start
+        IF $f_diff >= $delay_ms
+            BREAK
+        ENDIF
+    NEXT
+    $error = $f_diff - $delay_ms
+ENDFUNC
+
+FUNC 匹配
+    # ========自定义ID匹配=======
+    $is_match = 0
+    IF $curr1 == $target1
+        IF $curr2 == $target2
+            IF $curr3 == $target3
+                IF $curr4 == $target4
+                    IF $curr5 == $target5
+                        $is_match = 1
+                    ENDIF
+                ENDIF
+            ENDIF
+        ENDIF
+    ENDIF
+    
+    IF $65535开关 == 1
+        IF $curr1 == 6
+            IF $curr2 == 5
+                IF $curr3 == 5
+                    IF $curr4 == 3
+                        IF $curr5 == 5
+                            $is_match = 1
+                        ENDIF
+                    ENDIF
+                ENDIF
+            ENDIF
+        ENDIF
+    ENDIF
+    
+    # ========豹子号判断=======
+    $same_condition_match = 0
+    IF $is_match == 0
+        IF $same_id_switch == 1
+            IF $curr1 == $curr2
+                IF $curr2 == $curr3
+                    IF $curr3 == $curr4
+                        IF $curr4 == $curr5
+                            $same_condition_match = 1
+                        ENDIF
+                    ENDIF
+                ENDIF
+            ENDIF
+        ENDIF
+    ENDIF
+    
+    # ========连号判断（升序 / 降序）=======
+    $continue_condition_match = 0
+    IF $continue_id_switch == 1
+        IF $is_match == 0
+            IF $same_condition_match == 0
+                
+                # 升序
+                $t1 = $curr1
+                $t1 += 1
+                $t2 = $curr2
+                $t2 += 1
+                $t3 = $curr3
+                $t3 += 1
+                $t4 = $curr4
+                $t4 += 1
+                IF $curr2 == $t1
+                    IF $curr3 == $t2
+                        IF $curr4 == $t3
+                            IF $curr5 == $t4
+                                $continue_condition_match = 1
+                            ENDIF
+                        ENDIF
+                    ENDIF
+                ENDIF
+                
+                # 降序
+                IF $continue_condition_match == 0
+                    $t1 = $curr1
+                    $t1 -= 1
+                    $t2 = $curr2
+                    $t2 -= 1
+                    $t3 = $curr3
+                    $t3 -= 1
+                    $t4 = $curr4
+                    $t4 -= 1
+                    IF $curr2 == $t1
+                        IF $curr3 == $t2
+                            IF $curr4 == $t3
+                                IF $curr5 == $t4
+                                    $continue_condition_match = 1
+                                ENDIF
+                            ENDIF
+                        ENDIF
+                    ENDIF
+                ENDIF
+                
+            ENDIF
+        ENDIF
+    ENDIF
+ENDFUNC
+
+FUNC 处理ID卡结果
+    $LoopControl = 0
+    CALL 识图
+    
+    IF $digits_ok == 0
+        $CISHU += 1
+        PRINT ⚠️ 第 & $CISHU & 轮 ID识别不完整： & $curr1 & $curr2 & $curr3 & $curr4 & $curr5
+        $LoopControl = 1
+        RETURN
+    ENDIF
+    
+    CALL 匹配
+    
+    IF $same_condition_match == 1
+        $CISHU += 1
+        PRINT ========================
+        PRINT ✅ 豹子TID匹配成功！
+        PRINT 当前TID： & $curr1 & $curr2 & $curr3 & $curr4 & $curr5
+        PRINT 目标TID： & _TARGET_TID
+        PRINT 📊 累计刷取次数： & $CISHU & 次
+        $LoopControl = 2
+        RETURN
+    ENDIF
+    
+    IF $continue_condition_match == 1
+        $CISHU += 1
+        PRINT ========================
+        PRINT ✅ 连号TID匹配成功！
+        PRINT 当前TID： & $curr1 & $curr2 & $curr3 & $curr4 & $curr5
+        PRINT 目标TID： & _TARGET_TID
+        PRINT 📊 累计刷取次数： & $CISHU & 次
+        $LoopControl = 2
+        RETURN
+    ENDIF
+    
+    IF $is_match == 1
+        $CISHU += 1
+        PRINT ========================
+        PRINT ✅ 5位TID全匹配成功！
+        PRINT 🎯 目标ID： & $target1 & $target2 & $target3 & $target4 & $target5
+        PRINT 当前TID： & $curr1 & $curr2 & $curr3 & $curr4 & $curr5
+        PRINT 目标TID： & _TARGET_TID
+        PRINT 📊 累计刷取次数： & $CISHU & 次
+        $LoopControl = 2
+        RETURN
+    ENDIF
+    
+    $CISHU += 1
+    PRINT ========================
+    PRINT 📋 第 & $CISHU & 轮
+    PRINT 当前TID： & $curr1 & $curr2 & $curr3 & $curr4 & $curr5
+    PRINT 目标TID： & _TARGET_TID
+    IF $Stop == 1
+        $LoopControl = 2
+        RETURN
+    ENDIF
+    $LoopControl = 2
+ENDFUNC
+
+FUNC 识图
+    $curr1 = -1
+    IF @位置1图标0 > 92
+        $curr1 = 0
+    ENDIF
+    IF @位置1图标1 > 92
+        $curr1 = 1
+    ENDIF
+    IF @位置1图标2 > 92
+        $curr1 = 2
+    ENDIF
+    IF @位置1图标3 > 92
+        $curr1 = 3
+    ENDIF
+    IF @位置1图标4 > 92
+        $curr1 = 4
+    ENDIF
+    IF @位置1图标5 > 92
+        $curr1 = 5
+    ENDIF
+    IF @位置1图标6 > 92
+        $curr1 = 6
+    ENDIF
+    IF @位置1图标7 > 90
+        $curr1 = 7
+    ENDIF
+    IF @位置1图标8 > 95
+        $curr1 = 8
+    ENDIF
+    IF @位置1图标9 > 95
+        $curr1 = 9
+    ENDIF
+    
+    # 位置2：完整检测并记录实际数字
+    $curr2 = -1
+    IF @位置2图标0 > 92
+        $curr2 = 0
+    ENDIF
+    IF @位置2图标1 > 92
+        $curr2 = 1
+    ENDIF
+    IF @位置2图标2 > 92
+        $curr2 = 2
+    ENDIF
+    IF @位置2图标3 > 92
+        $curr2 = 3
+    ENDIF
+    IF @位置2图标4 > 92
+        $curr2 = 4
+    ENDIF
+    IF @位置2图标5 > 92
+        $curr2 = 5
+    ENDIF
+    IF @位置2图标6 > 92
+        $curr2 = 6
+    ENDIF
+    IF @位置2图标7 > 90
+        $curr2 = 7
+    ENDIF
+    IF @位置2图标8 > 95
+        $curr2 = 8
+    ENDIF
+    IF @位置2图标9 > 95
+        $curr2 = 9
+    ENDIF
+    
+    # 位置3：完整检测并记录实际数字
+    $curr3 = -1
+    IF @位置3图标0 > 92
+        $curr3 = 0
+    ENDIF
+    IF @位置3图标1 > 92
+        $curr3 = 1
+    ENDIF
+    IF @位置3图标2 > 92
+        $curr3 = 2
+    ENDIF
+    IF @位置3图标3 > 92
+        $curr3 = 3
+    ENDIF
+    IF @位置3图标4 > 95
+        $curr3 = 4
+    ENDIF
+    IF @位置3图标5 > 92
+        $curr3 = 5
+    ENDIF
+    IF @位置3图标6 > 92
+        $curr3 = 6
+    ENDIF
+    IF @位置3图标7 > 90
+        $curr3 = 7
+    ENDIF
+    IF @位置3图标8 > 95
+        $curr3 = 8
+    ENDIF
+    IF @位置3图标9 > 95
+        $curr3 = 9
+    ENDIF
+    
+    # 位置4：完整检测并记录实际数字
+    $curr4 = -1
+    IF @位置4图标0 > 92
+        $curr4 = 0
+    ENDIF
+    IF @位置4图标1 > 92
+        $curr4 = 1
+    ENDIF
+    IF @位置4图标2 > 92
+        $curr4 = 2
+    ENDIF
+    IF @位置4图标3 > 92
+        $curr4 = 3
+    ENDIF
+    IF @位置4图标4 > 92
+        $curr4 = 4
+    ENDIF
+    IF @位置4图标5 > 92
+        $curr4 = 5
+    ENDIF
+    IF @位置4图标6 > 92
+        $curr4 = 6
+    ENDIF
+    IF @位置4图标7 > 90
+        $curr4 = 7
+    ENDIF
+    IF @位置4图标8 > 95
+        $curr4 = 8
+    ENDIF
+    IF @位置4图标9 > 95
+        $curr4 = 9
+    ENDIF
+    
+    # 位置5：完整检测并记录实际数字
+    $curr5 = -1
+    IF @位置5图标0 > 92
+        $curr5 = 0
+    ENDIF
+    IF @位置5图标1 > 92
+        $curr5 = 1
+    ENDIF
+    IF @位置5图标2 > 92
+        $curr5 = 2
+    ENDIF
+    IF @位置5图标3 > 92
+        $curr5 = 3
+    ENDIF
+    IF @位置5图标4 > 92
+        $curr5 = 4
+    ENDIF
+    IF @位置5图标5 > 92
+        $curr5 = 5
+    ENDIF
+    IF @位置5图标6 > 92
+        $curr5 = 6
+    ENDIF
+    IF @位置5图标7 > 90
+        $curr5 = 7
+    ENDIF
+    IF @位置5图标8 > 95
+        $curr5 = 8
+    ENDIF
+    IF @位置5图标9 > 95
+        $curr5 = 9
+    ENDIF
+    
+    # ========先判断5位是否都识别成功=======
+    $digits_ok = 1
+    
+    IF $curr1 < 0
+        $digits_ok = 0
+    ENDIF
+    IF $curr2 < 0
+        $digits_ok = 0
+    ENDIF
+    IF $curr3 < 0
+        $digits_ok = 0
+    ENDIF
+    IF $curr4 < 0
+        $digits_ok = 0
+    ENDIF
+    IF $curr5 < 0
+        $digits_ok = 0
+    ENDIF
+    
+ENDFUNC
+
+FUNC 关闭软件
+    FOR
+        IF @防止SWITCH休眠 > 95
+            FOR 3
+                B
+                50
+            NEXT
+        ELSE
+            HOME DOWN
+            100
+            HOME UP
+            1000
+            X
+            WAIT 1000
+            A
+            WAIT 1500
+            A
+            WAIT 1000
+            RIGHT
+            1500
+            A#进入账号
+            1300#这里保持尽量低的延迟
+            BREAK
+        ENDIF
+    NEXT
+ENDFUNC
+
+
+FUNC 进入ID卡查询
+    WAIT 1000
+    A
+    WAIT 2500
+    A
+    WAIT 1000
+    A
+    WAIT 1500
+    DOWN
+    WAIT 500
+    A
+    WAIT 1500
+    A
+    WAIT 1500
+    A
+    WAIT 2500
+    A
+    WAIT 5000
+    A
+    WAIT 5500
+    X
+    WAIT 500
+    DOWN
+    WAIT 500
+    A
+ENDFUNC
+
+
+FUNC 启动与环境清理
+    A
+    WAIT 1500
+    RIGHT
+    WAIT 500
+    A
+    WAIT 1500
+    HOME
+    WAIT 3000
+ENDFUNC

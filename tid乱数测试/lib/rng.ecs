@@ -1,0 +1,30 @@
+﻿FUNC NextSeed
+    # 拆 seed
+    $hi = $seed >> 16
+    $lo = $seed & 65535
+    
+    # 乘法拆分
+    $t1 = $lo * 20077# lo * A_lo
+    $t2 = $lo * 16838# lo * A_hi
+    $t3 = $hi * 20077# hi * A_lo
+    
+    # 合并中间项
+    $mid = $t2 + $t3
+    
+    # 组合结果
+    $new_lo = $t1 & 65535
+    $new_hi = ($mid + ($t1 >> 16)) & 65535
+    
+    # 加上常数 C
+    $new_lo = $new_lo + 24691
+    
+    IF $new_lo >= 65536
+        $new_lo = $new_lo - 65536
+        $new_hi = $new_hi + 1
+    ENDIF
+    
+    $new_hi = $new_hi & 65535
+    
+    # 拼回 32 位
+    $seed = ($new_hi << 16) + $new_lo
+ENDFUNC

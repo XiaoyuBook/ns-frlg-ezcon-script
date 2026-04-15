@@ -1,0 +1,164 @@
+﻿IMPORT "common.ecs"
+IMPORT "name.ecs"
+IMPORT "rng.ecs"
+
+# ====================== 可调参数 ======================
+$KeyDelay = 50
+# 用于取名输入时的按键间隔
+# ============================================================
+# 于用户选择界面启动
+# 1. 核心参数设置区
+# ------------------------------------------------------------
+# 调整公式（存档状态）：1ms ≈ 0.05 帧 | 调整值 = 偏差帧数 / 0.05
+# 调整公式（普通状态）：1ms ≈ 0.12 帧 | 调整值 = 偏差帧数 / 0.12
+# ------------------------------------------------------------
+_SEED_TIME = 30587# 第一段：启动 -> 命中 Seed 的时间 (ms)
+_PARITY_TIME = 1500# 第二段：存档界面停留时间 (修正奇偶性)
+_F1 = 15000
+_F2 = 45000
+_F3 = 20000# 第三段核心：进入游戏后到目标帧的等待时间 (ms)
+
+_TARGET_TID = 1234
+# 目标TID
+
+$same_id_switch = 1
+# 豹子号检测开关：1=开启，0=关闭
+# 仅检测 5 位完全相同，例如 11111、22222
+
+$continue_id_switch = 1
+# 连号检测开关：1=开启，0=关闭
+# 检测 5 位连续数字，支持升序 / 降序
+
+$65535开关 = 1
+# 65535检测开关：1=开启，0=关闭
+
+
+
+# ====================== 名字设置 ======================
+# 默认全部为 RED
+# 区分大小写，例如 Ben:
+# $Name1 = $U_B
+# $Name2 = $L_e
+# $Name3 = $L_n
+# 其余保持 $RED
+$Name1 = $U_A
+$Name2 = $L_l
+$Name3 = $L_a
+$Name4 = $L_x
+$Name5 = $L_e
+$Name6 = $RED
+$Name7 = $RED
+
+
+# ====================== 主流程 ======================
+
+CALL 初始化目标TID
+
+# --- 启动与环境清理 ---
+CALL 启动与环境清理
+
+
+
+# ==========================================
+# 2. 核心逻辑
+# ==========================================
+
+# --- [第一段：锁定 Seed] ---
+A
+$delay_ms = _SEED_TIME
+CALL PreciseWait
+A DOWN
+WAIT 4000
+A UP
+
+# --- [第二段：锁定奇偶性] ---
+WAIT 500
+DOWN
+$delay_ms = _PARITY_TIME
+CALL PreciseWait
+
+# 【全脚本唯一的稳定性锚点】
+# 这一刻按下 A，进入游戏，所有后续计时全部锁死在这一秒
+A DOWN
+# 绝对原点
+WAIT 4000
+A UP
+$F1_start = TIME()
+# --- [后续所有动作：基于绝对时间点对齐] ---
+
+# 动作序列 A (对应你原来的 F1 段)
+FOR 7
+    A
+    WAIT 1500
+NEXT
+
+# 对齐 F1 触发点
+FOR
+    $now = TIME()
+    IF ($now - $F1_start) >= _F1
+        BREAK
+    ENDIF
+NEXT
+A DOWN
+WAIT 4000
+A UP
+$F2_start = TIME()
+# 动作序列 B (对应你原来的 F2 段)
+FOR 15
+    A
+    WAIT 1000
+NEXT
+# ... 执行取名之前的其他 DOWN 等操作 ...
+WAIT 2000
+DOWN
+WAIT 1000
+A
+# 对齐 F2 触发
+FOR
+    $now = TIME()
+    IF ($now - $F2_start) >= _F2
+        BREAK
+    ENDIF
+NEXT
+A DOWN
+WAIT 4000
+A UP
+$F3_start = TIME()
+# 对齐 F3 (最终 ID 决定点)
+# 之前的取名路径是固定的，耗时已知。
+CALL 取名
+
+FOR
+    $now = TIME()
+    IF ($now - $F3_start) >= _F3
+        BREAK
+    ENDIF
+NEXT
+A# 【最终命中】
+3000
+PRINT [最终监控] 总耗时: & $t_elapsed & ms
+
+# --- 后续进入 ID 卡查询 ---
+CALL 进入ID卡查询
+
+
+FOR
+    100#识图轮询间隔
+    IF @IDNo >= 95
+        500#等待ID卡加载
+        CALL 处理ID卡结果
+        IF $LoopControl == 1
+            CONTINUE
+        ENDIF
+        IF $LoopControl == 2
+            BREAK
+        ENDIF
+        
+    ENDIF
+    
+NEXT
+
+
+
+
+
