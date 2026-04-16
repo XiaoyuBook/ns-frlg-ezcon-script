@@ -1,0 +1,353 @@
+FUNC 处理ID检测
+    $ID_POLL_DONE = 0
+    $result_logged = 0
+
+    $curr1 = -1
+    IF @位置1图标0 > 92
+        $curr1 = 0
+    ENDIF
+    IF @位置1图标1 > 92
+        $curr1 = 1
+    ENDIF
+    IF @位置1图标2 > 92
+        $curr1 = 2
+    ENDIF
+    IF @位置1图标3 > 92
+        $curr1 = 3
+    ENDIF
+    IF @位置1图标4 > 92
+        $curr1 = 4
+    ENDIF
+    IF @位置1图标5 > 92
+        $curr1 = 5
+    ENDIF
+    IF @位置1图标6 > 92
+        $curr1 = 6
+    ENDIF
+    IF @位置1图标7 > 90
+        $curr1 = 7
+    ENDIF
+    IF @位置1图标8 > 95
+        $curr1 = 8
+    ENDIF
+    IF @位置1图标9 > 95
+        $curr1 = 9
+    ENDIF
+
+    $curr2 = -1
+    IF @位置2图标0 > 92
+        $curr2 = 0
+    ENDIF
+    IF @位置2图标1 > 92
+        $curr2 = 1
+    ENDIF
+    IF @位置2图标2 > 92
+        $curr2 = 2
+    ENDIF
+    IF @位置2图标3 > 92
+        $curr2 = 3
+    ENDIF
+    IF @位置2图标4 > 92
+        $curr2 = 4
+    ENDIF
+    IF @位置2图标5 > 92
+        $curr2 = 5
+    ENDIF
+    IF @位置2图标6 > 92
+        $curr2 = 6
+    ENDIF
+    IF @位置2图标7 > 90
+        $curr2 = 7
+    ENDIF
+    IF @位置2图标8 > 95
+        $curr2 = 8
+    ENDIF
+    IF @位置2图标9 > 95
+        $curr2 = 9
+    ENDIF
+
+    $curr3 = -1
+    IF @位置3图标0 > 92
+        $curr3 = 0
+    ENDIF
+    IF @位置3图标1 > 92
+        $curr3 = 1
+    ENDIF
+    IF @位置3图标2 > 92
+        $curr3 = 2
+    ENDIF
+    IF @位置3图标3 > 92
+        $curr3 = 3
+    ENDIF
+    IF @位置3图标4 > 95
+        $curr3 = 4
+    ENDIF
+    IF @位置3图标5 > 92
+        $curr3 = 5
+    ENDIF
+    IF @位置3图标6 > 92
+        $curr3 = 6
+    ENDIF
+    IF @位置3图标7 > 90
+        $curr3 = 7
+    ENDIF
+    IF @位置3图标8 > 95
+        $curr3 = 8
+    ENDIF
+    IF @位置3图标9 > 95
+        $curr3 = 9
+    ENDIF
+
+    $curr4 = -1
+    IF @位置4图标0 > 92
+        $curr4 = 0
+    ENDIF
+    IF @位置4图标1 > 92
+        $curr4 = 1
+    ENDIF
+    IF @位置4图标2 > 92
+        $curr4 = 2
+    ENDIF
+    IF @位置4图标3 > 92
+        $curr4 = 3
+    ENDIF
+    IF @位置4图标4 > 92
+        $curr4 = 4
+    ENDIF
+    IF @位置4图标5 > 92
+        $curr4 = 5
+    ENDIF
+    IF @位置4图标6 > 92
+        $curr4 = 6
+    ENDIF
+    IF @位置4图标7 > 90
+        $curr4 = 7
+    ENDIF
+    IF @位置4图标8 > 95
+        $curr4 = 8
+    ENDIF
+    IF @位置4图标9 > 95
+        $curr4 = 9
+    ENDIF
+
+    $curr5 = -1
+    IF @位置5图标0 > 92
+        $curr5 = 0
+    ENDIF
+    IF @位置5图标1 > 92
+        $curr5 = 1
+    ENDIF
+    IF @位置5图标2 > 92
+        $curr5 = 2
+    ENDIF
+    IF @位置5图标3 > 92
+        $curr5 = 3
+    ENDIF
+    IF @位置5图标4 > 92
+        $curr5 = 4
+    ENDIF
+    IF @位置5图标5 > 92
+        $curr5 = 5
+    ENDIF
+    IF @位置5图标6 > 92
+        $curr5 = 6
+    ENDIF
+    IF @位置5图标7 > 90
+        $curr5 = 7
+    ENDIF
+    IF @位置5图标8 > 95
+        $curr5 = 8
+    ENDIF
+    IF @位置5图标9 > 95
+        $curr5 = 9
+    ENDIF
+
+    $digits_ok = 1
+    IF $curr1 < 0
+        $digits_ok = 0
+    ENDIF
+    IF $curr2 < 0
+        $digits_ok = 0
+    ENDIF
+    IF $curr3 < 0
+        $digits_ok = 0
+    ENDIF
+    IF $curr4 < 0
+        $digits_ok = 0
+    ENDIF
+    IF $curr5 < 0
+        $digits_ok = 0
+    ENDIF
+
+    IF $digits_ok == 0
+        $CISHU += 1
+        PRINT ⚠️ 第 & $CISHU & 轮 ID识别不完整： & $curr1 & $curr2 & $curr3 & $curr4 & $curr5
+    ENDIF
+
+    IF $digits_ok == 1
+        $is_match = 0
+        IF $curr1 == $target1
+            IF $curr2 == $target2
+                IF $curr3 == $target3
+                    IF $curr4 == $target4
+                        IF $curr5 == $target5
+                            $is_match = 1
+                        ENDIF
+                    ENDIF
+                ENDIF
+            ENDIF
+        ENDIF
+
+        IF $65535开关 == 1
+            IF $curr1 == 6
+                IF $curr2 == 5
+                    IF $curr3 == 5
+                        IF $curr4 == 3
+                            IF $curr5 == 5
+                                $is_match = 1
+                            ENDIF
+                        ENDIF
+                    ENDIF
+                ENDIF
+            ENDIF
+        ENDIF
+
+        $same_condition_match = 0
+        IF $is_match == 0
+            IF $same_id_switch == 1
+                IF $curr1 == $curr2
+                    IF $curr2 == $curr3
+                        IF $curr3 == $curr4
+                            IF $curr4 == $curr5
+                                $same_condition_match = 1
+                            ENDIF
+                        ENDIF
+                    ENDIF
+                ENDIF
+            ENDIF
+        ENDIF
+
+        $continue_condition_match = 0
+        IF $continue_id_switch == 1
+            IF $is_match == 0
+                IF $same_condition_match == 0
+                    $t1 = $curr1
+                    $t1 += 1
+                    $t2 = $curr2
+                    $t2 += 1
+                    $t3 = $curr3
+                    $t3 += 1
+                    $t4 = $curr4
+                    $t4 += 1
+                    IF $curr2 == $t1
+                        IF $curr3 == $t2
+                            IF $curr4 == $t3
+                                IF $curr5 == $t4
+                                    $continue_condition_match = 1
+                                ENDIF
+                            ENDIF
+                        ENDIF
+                    ENDIF
+
+                    IF $continue_condition_match == 0
+                        $t1 = $curr1
+                        $t1 -= 1
+                        $t2 = $curr2
+                        $t2 -= 1
+                        $t3 = $curr3
+                        $t3 -= 1
+                        $t4 = $curr4
+                        $t4 -= 1
+                        IF $curr2 == $t1
+                            IF $curr3 == $t2
+                                IF $curr4 == $t3
+                                    IF $curr5 == $t4
+                                        $continue_condition_match = 1
+                                    ENDIF
+                                ENDIF
+                            ENDIF
+                        ENDIF
+                    ENDIF
+                ENDIF
+            ENDIF
+        ENDIF
+
+        IF $same_condition_match == 1
+            $CISHU += 1
+            PRINT ========================
+            PRINT ✅ 豹子TID匹配成功！
+            PRINT ========================
+            PRINT 当前TID： & $curr1 & $curr2 & $curr3 & $curr4 & $curr5
+            PRINT 目标TID： & $TARGET_TID
+            PRINT 📊 累计刷取次数： & $CISHU & 次
+            $ID_POLL_DONE = 1
+            $result_logged = 1
+        ENDIF
+
+        IF $result_logged == 0
+            IF $continue_condition_match == 1
+                $CISHU += 1
+                PRINT ========================
+                PRINT ✅ 连号TID匹配成功！
+                PRINT ========================
+                PRINT 当前TID： & $curr1 & $curr2 & $curr3 & $curr4 & $curr5
+                PRINT 目标TID： & $TARGET_TID
+                PRINT 📊 累计刷取次数： & $CISHU & 次
+                $ID_POLL_DONE = 1
+                $result_logged = 1
+            ENDIF
+        ENDIF
+
+        IF $result_logged == 0
+            IF $is_match == 1
+                $CISHU += 1
+                PRINT ========================
+                PRINT ✅ 5位TID全匹配成功！
+                PRINT 🎯 目标ID： & $target1 & $target2 & $target3 & $target4 & $target5
+                PRINT ========================
+                PRINT 当前TID： & $curr1 & $curr2 & $curr3 & $curr4 & $curr5
+                PRINT 目标TID： & $TARGET_TID
+                PRINT 📊 累计刷取次数： & $CISHU & 次
+                $ID_POLL_DONE = 1
+                $result_logged = 1
+            ENDIF
+        ENDIF
+
+        IF $result_logged == 0
+            $CISHU += 1
+            PRINT ========================
+            PRINT 📋 第 & $CISHU & 轮
+            PRINT ========================
+            PRINT 当前TID： & $curr1 & $curr2 & $curr3 & $curr4 & $curr5
+            PRINT 目标TID： & $TARGET_TID
+            $ID_POLL_DONE = 1
+        ENDIF
+    ENDIF
+ENDFUNC
+
+FUNC idCheck
+WAIT 1000
+    A
+    WAIT 2500
+    A
+    WAIT 1000
+    A
+    WAIT 1500
+    DOWN
+    WAIT 500
+    A
+    WAIT 1500
+    A
+    WAIT 1500
+    A
+    WAIT 2500
+    A
+    WAIT 5000
+    A
+    WAIT 5500
+    X
+    WAIT 500
+    DOWN
+    WAIT 500
+    A
+ENDFUNC

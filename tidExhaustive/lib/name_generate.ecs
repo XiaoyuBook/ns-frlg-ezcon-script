@@ -1,0 +1,165 @@
+FUNC 取名
+    IF $Name1 == 0#判断是否为默认RED名称
+        #PRINT RED
+        CALL 取名RED#取名为RED
+    ELSE
+        #  PRINT 自定义名称
+        $Name = $Name1
+        IF $Name != 0
+            CALL 自定义名称#取名为自定义名称
+        ENDIF
+        $Name = $Name2
+        IF $Name != 0
+            CALL 自定义名称#取名为自定义名称
+        ENDIF
+        $Name = $Name3
+        IF $Name != 0
+            CALL 自定义名称#取名为自定义名称
+        ENDIF
+        $Name = $Name4
+        IF $Name != 0
+            CALL 自定义名称#取名为自定义名称
+        ENDIF
+        $Name = $Name5
+        IF $Name != 0
+            CALL 自定义名称#取名为自定义名称
+        ENDIF
+        $Name = $Name6
+        IF $Name != 0
+            CALL 自定义名称#取名为自定义名称
+        ENDIF
+        $Name = $Name7
+        IF $Name7 != 0
+            CALL 自定义名称#取名为自定义名称
+        ENDIF
+    ENDIF
+ENDFUNC
+
+FUNC 取名RED
+    FOR 5
+        WAIT $KeyDelay
+        RIGHT DOWN
+        WAIT 50
+        RIGHT UP
+    NEXT
+    FOR 2
+        WAIT $KeyDelay
+        DOWN DOWN
+        WAIT 50
+        DOWN UP
+    NEXT
+    WAIT $KeyDelay
+    A DOWN
+    WAIT 50
+    A UP
+
+    WAIT $KeyDelay
+    LEFT DOWN
+    WAIT 50
+    LEFT UP
+    FOR 2
+        WAIT $KeyDelay
+        UP DOWN
+        WAIT 50
+        UP UP
+    NEXT
+    WAIT $KeyDelay
+    A DOWN
+    WAIT 50
+    A UP
+
+    WAIT $KeyDelay
+    LEFT DOWN
+    WAIT 50
+    LEFT UP
+    WAIT $KeyDelay
+    A DOWN
+    WAIT 50
+    A UP
+    WAIT $KeyDelay
+    X DOWN
+    WAIT 50
+    X UP
+ENDFUNC
+
+FUNC 自定义名称
+
+    # 个位
+    $XXO = $Name
+    $XXO %= 10
+
+    # 十位
+    $XOX = $Name
+    $XOX /= 10
+    $XOX %= 10
+
+    # 百位
+    $OXX = $Name
+    $OXX /= 100
+    $OXX %= 10
+
+    WAIT $KeyDelay
+    X 50#回归Start起始点
+
+    IF $OXX == 1#判定为第一页
+        CALL 向左移动光标
+        CALL 向上移动光标
+        WAIT $KeyDelay
+        A 50#键入当前字符
+    ENDIF
+
+    IF $OXX == 2#判定为第二页
+        WAIT $KeyDelay
+        Y 50
+        $Select_Count += 1
+        550
+        CALL 向左移动光标
+        CALL 向上移动光标
+        A 50#键入当前字符
+        WAIT $KeyDelay
+        Y 50#回到第一页
+        $Select_Count += 1
+        550
+        Y 50
+        $Select_Count += 1
+        550
+    ENDIF
+
+    IF $OXX == 3#判定为第三页
+        WAIT $KeyDelay
+        Y 50
+        $Select_Count += 1
+        550
+        Y 50
+        $Select_Count += 1
+        550
+        CALL 向左移动光标
+        CALL 向上移动光标
+        WAIT $KeyDelay
+        A 50#键入当前字符
+        WAIT $KeyDelay
+        Y 50#回到第一页
+        $Select_Count += 1
+        550
+    ENDIF
+    WAIT $KeyDelay
+    X 50#回归Start起始点
+ENDFUNC
+
+FUNC 向左移动光标
+    FOR $XOX
+        WAIT $KeyDelay
+        LEFT DOWN
+        50
+        LEFT UP
+    NEXT
+ENDFUNC
+
+FUNC 向上移动光标
+    FOR $XXO
+        WAIT $KeyDelay
+        UP DOWN
+        50
+        UP UP
+    NEXT
+ENDFUNC

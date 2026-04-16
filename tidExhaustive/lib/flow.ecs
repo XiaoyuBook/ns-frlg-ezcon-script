@@ -1,0 +1,57 @@
+
+FUNC 再次运行
+    FOR 5
+        RCLICK
+        100
+    NEXT
+    FOR
+        300
+        IF @防止SWITCH休眠 > 95
+            FOR 5
+                B
+                200
+            NEXT
+        ELSE
+            HOME 80
+            500
+            X
+            WAIT 500
+            A
+            WAIT 500
+            A
+            800
+            A
+            400
+            BREAK
+        ENDIF
+    NEXT
+ENDFUNC
+
+
+
+FUNC 关闭软件
+    FOR
+        IF @防止SWITCH休眠 > 95
+            FOR 3
+                B
+                50
+            NEXT
+        ELSE
+            HOME DOWN
+            100
+            HOME UP
+            1000
+            X
+            WAIT 1000
+            A
+            WAIT 1500
+            A
+            WAIT 1000
+            RIGHT  # 用于切换用户
+            1500
+            A#进入账号
+            
+            BREAK
+        ENDIF
+    NEXT
+ENDFUNC
